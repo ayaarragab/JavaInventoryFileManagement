@@ -8,7 +8,7 @@ The `File` class is a fundamental component of the Inventory Management System. 
 ### Constructor
 ```java
 File(String pathName)
-
+```
 ## Management Class
 
 ### Overview
