@@ -1,4 +1,3 @@
-# Implementation_of_File_class_and_Management_class_in_Inventory_system_In_Java
 # Inventory Management System - Implementation of File class and Management class in Java
 
 ## File Class
