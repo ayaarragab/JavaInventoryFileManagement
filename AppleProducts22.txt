@@ -1,0 +1,18 @@
+[Product 10]
+Id_p: 0
+Name_p: Apple watch
+[Product 20]
+Id_p: 0
+Name_p: Apple watch2
+[Product 10]
+Id_p: 0
+Name_p: Apple watch
+[Product 20]
+Id_p: 0
+Name_p: Apple watch2
+[Product 10]
+Id_p: 0
+Name_p: Apple watch
+[Product 20]
+Id_p: 0
+Name_p: Apple watch2

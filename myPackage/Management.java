@@ -72,4 +72,42 @@ public class Management {
         writer.write("");
         writer.close();   
     }
+    /* Search methods */
+    /**
+     * isExist - checks if value exists in the file or not
+     * @value: value to be searched for
+     * Return: true or false
+     */
+    public boolean isExist(String field_name, String value) throws Exception{
+        String searhed = field_name + ": " + value;
+        if (ToString.fileToString(this.file).contains(searhed))
+            return true;
+        else
+            return false;
+    }
+    /**
+     * isExist - checks if object exists in the file or not
+     * @obj: object to be searched for
+     * @identifer: id of the object
+     * Return: true or false
+     */
+    public boolean isExist(Object obj, int identifer) throws Exception{
+        String searhed = ToString.objectToString(obj, identifer);
+        if (ToString.fileToString(this.file).contains(searhed))
+            return true;
+        else
+            return false;
+    }
+    /**
+     * isExist - checks if object exists in the file or not
+     * @obj: object to be searched for
+     * Return: true or false
+     */
+    public boolean isExist(Object obj) throws Exception{
+        String searhed = ToString.objectToString(obj);
+        if (ToString.fileToString(this.file).contains(searhed))
+            return true;
+        else
+            return false;
+    }
 }
