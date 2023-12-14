@@ -1,6 +1,8 @@
 package myPackage;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileReader;
 import java.io.FileWriter;
 /**
  * The `Management` class provides a simplified and encapsulated way to interact with files,
@@ -65,35 +67,47 @@ public class Management {
         writer.write(result);
         writer.close();
     }
-
     /**
-     * Updates the specified field of an object in the file.
-     *
-     * @param obj       The object to be updated.
-     * @param fieldName The name of the field to be updated.
-     * @param value     The new value for the field.
-     * @throws Exception If an error occurs during the file operation.
+     * Removes a block of data from the file based on the provided ID.
+     * The block is identified by lines starting with "id", "Id", or "ID"
+     * followed by the specified ID.
+     * 
+     * @param id The ID used to identify the block of data to be removed.
+     * @throws Exception If an error occurs while reading from or writing to the file.
      */
-    public void update(Object obj, String fieldName, String value) throws Exception{
-        String[] objectData = ToString.fileToString(this.file).split("\n");
-        String placeInReplaced = fieldName + ":" + " " + value;
-        StringBuffer collectAgain = new StringBuffer();
-        for (int i = 0; i < objectData.length; i++) {
-            if (objectData[i].contains(fieldName)) {
-                objectData[i] = placeInReplaced;
-                break;
+    public void remove(int id) throws Exception {
+        String line_prev, line_next;
+        StringBuilder contentAfterDelete = new StringBuilder();
+        
+        BufferedReader reader = new BufferedReader(new FileReader(this.file.getPathName()));
+        
+        line_prev = reader.readLine();
+        line_next = reader.readLine();
+        
+        while (line_next != null) {
+            if ((line_next.startsWith("id") || line_next.startsWith("Id") || line_next.startsWith("ID")) && (Integer.parseInt(line_next.substring(4).trim()) == id)) {
+                while (line_next != null && !line_next.contains("["))
+                    line_next = reader.readLine();
+            } else {
+                contentAfterDelete.append(line_prev).append("\n");
+            }
+            
+            if (line_next != null) {
+                line_prev = line_next;
+                line_next = reader.readLine();
             }
         }
-        for (String string : objectData) {
-            collectAgain.append(string);
-            collectAgain.append("\n");
+        System.out.println(line_prev);
+        if (!line_prev.contains("[")) {
+            contentAfterDelete.append(line_prev).append("\n");
         }
-        String updatedData = collectAgain.toString().trim();
-        BufferedWriter write = new BufferedWriter(new FileWriter(this.file.getPathName()));
-        write.write(updatedData);
-        write.close();
+        reader.close();
+        
+        BufferedWriter writer = new BufferedWriter(new FileWriter(this.getFile().getPathName()));
+        writer.write(contentAfterDelete.toString());
+        writer.close();
     }
-    
+
     /**
      * Deletes the entire file.
      *
@@ -198,5 +212,83 @@ public class Management {
             return ToString.objectToString(obj);
         else
             return null;
+    }
+    /**
+     * Retrieves the value of a specified field for an object with the given ID.
+     *
+     * @param id         The ID of the object.
+     * @param field_name The name of the field to retrieve.
+     * @return The value of the specified field if found, or null if the field or object is not found.
+     * @throws Exception If an error occurs during the file operation.
+     */
+    public String retrieveById(int id, String field_name) throws Exception {
+        String line;
+    
+        BufferedReader reader = new BufferedReader(new FileReader(this.file.getPathName()));
+        line = reader.readLine();
+        while (line != null && !line.contains(field_name)) {
+            if ((line = reader.readLine()) != null && (line.startsWith("id") || line.startsWith("Id") || line.startsWith("ID"))) {
+                if (Integer.parseInt(line.substring(4)) == id) {
+                    while (!line.contains(field_name))
+                        line = reader.readLine();
+                }
+            }
+        }
+        reader.close();
+        return line.substring(field_name.length() + 1);
+    }
+
+    /**
+     * Updates the specified field of an object with the given ID in the file.
+     *
+     * @param id         The ID of the object to be updated.
+     * @param field_name The name of the field to be updated.
+     * @param value      The new value for the field.
+     * @throws Exception If an error occurs during the file operation.
+     */
+    public void update(int id, String field_name, String value) throws Exception {
+        String line;
+        String placeInReplaced = field_name + ": " + value;
+        BufferedReader reader = new BufferedReader(new FileReader(this.file.getPathName()));
+        StringBuilder firstPart = new StringBuilder();
+        StringBuilder lastPart = new StringBuilder();
+        boolean foundId = false;
+
+        while ((line = reader.readLine()) != null) {
+            if (line.startsWith("[")) {
+                if (foundId) {
+                    lastPart.append(line).append("\n");
+                    while (line != null) {
+                        line = reader.readLine();
+                        if (line != null) {
+                            lastPart.append(line).append("\n");
+                        }
+                        else
+                            break;
+                    }
+                } else {
+                    firstPart.append(line).append("\n");
+                }
+            } else if (line.startsWith("id") || line.startsWith("Id") || line.startsWith("ID")) {
+                if (Integer.parseInt(line.substring(4).trim()) == id) {
+                    foundId = true;
+                    firstPart.append(line).append("\n");
+                } else {
+                    firstPart.append(line).append("\n");
+                }
+            } else if (line.contains(field_name)) {
+                firstPart.append(placeInReplaced).append("\n"); 
+            } else {
+                firstPart.append(line).append("\n");
+            }
+        }
+
+        reader.close();
+        System.out.println(firstPart);
+        // Write the updated content back to the file
+        BufferedWriter writer = new BufferedWriter(new FileWriter(this.getFile().getPathName()));
+        writer.write(firstPart.toString());
+        writer.write(lastPart.toString());
+        writer.close();
     }
 }
